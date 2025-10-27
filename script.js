@@ -24,6 +24,21 @@ function initializeDefaultCategories() {
     }
 }
 
+function saveData() {
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+    localStorage.setItem('accounts', JSON.stringify(accounts));
+    localStorage.setItem('totalMoneyAdded', totalMoneyAdded.toString());
+}
+
+function loadData() {
+    const savedExpenses = localStorage.getItem('expenses');
+    const savedAccounts = localStorage.getItem('accounts');
+    const savedTotal = localStorage.getItem('totalMoneyAdded');
+    if (savedExpenses) expenses = JSON.parse(savedExpenses);
+    if (savedAccounts) accounts = JSON.parse(savedAccounts);
+    if (savedTotal) totalMoneyAdded = parseFloat(savedTotal) || 0;
+}
+
 // Load data from localStorage
 function loadData() {
     const savedExpenses = localStorage.getItem('expenses');
