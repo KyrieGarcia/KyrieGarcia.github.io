@@ -1495,10 +1495,9 @@
             renderAllCategories();
             
             const msg = document.getElementById('successMessage');
-            msg.textContent = `${currentSavingsAction === 'add' ? 'Added' : 'Removed'} ₱${amount.toFixed(2)} successfully!`;
-            msg.style.display = 'block';
-            setTimeout(() => msg.style.display = 'none', 3000);
-        }
+           if (currentSavingsAction) {  // ← Only if it's a savings action
+    msg.textContent = `Added ₱${amount} successfully!`;
+    msg.style.display = 'block';
 
         function updateAllDisplays() {
             // Update accounts tab
