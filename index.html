@@ -720,7 +720,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="amount">Amount (₱)</label>
+                    <label for="amount">Amount (â‚±)</label>
                     <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" required>
                 </div>
 
@@ -756,7 +756,7 @@
         <!-- Summary Section -->
         <div class="summary-section">
             <h2 style="font-size: 24px; margin-bottom: 10px;">Total Expenses</h2>
-            <div class="total-amount" id="totalAmount">₱0.00</div>
+            <div class="total-amount" id="totalAmount">â‚±0.00</div>
             <div class="transaction-count" id="transactionCount">0 transactions</div>
         </div>
 
@@ -851,15 +851,15 @@
                 <div class="summary-grid">
                     <div class="summary-item">
                         <div class="summary-label">Total Savings</div>
-                        <div class="summary-value" id="totalSavings">₱0.00</div>
+                        <div class="summary-value" id="totalSavings">â‚±0.00</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-label">Total Spent</div>
-                        <div class="summary-value" id="totalSpent">₱0.00</div>
+                        <div class="summary-value" id="totalSpent">â‚±0.00</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-label">Remaining Balance</div>
-                        <div class="summary-value" id="remainingBalance">₱0.00</div>
+                        <div class="summary-value" id="remainingBalance">â‚±0.00</div>
                     </div>
                 </div>
             </div>
@@ -890,11 +890,11 @@
             <div class="stats-cards">
                 <div class="stat-card">
                     <div class="stat-label">Total Spent (Period)</div>
-                    <div class="stat-value" id="periodTotal">₱0.00</div>
+                    <div class="stat-value" id="periodTotal">â‚±0.00</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Average Daily</div>
-                    <div class="stat-value" id="avgDaily">₱0.00</div>
+                    <div class="stat-value" id="avgDaily">â‚±0.00</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Most Expensive Category</div>
@@ -942,7 +942,7 @@
                 <h2 id="modalTitle" style="color: #8B1538; margin-bottom: 20px; font-size: 24px;">Add Money</h2>
                 <form id="savingsForm" onsubmit="submitSavingsTransaction(event)">
                     <div class="form-group">
-                        <label for="savingsAmount">Amount (₱)</label>
+                        <label for="savingsAmount">Amount (â‚±)</label>
                         <input type="number" id="savingsAmount" step="0.01" min="0.01" required>
                     </div>
                     <div class="form-group">
@@ -1191,7 +1191,7 @@
                     <td>${expense.description}</td>
                     <td><span class="category-badge category-${expense.category.toLowerCase()}">${expense.category}</span></td>
                     <td>${expense.paidFrom || 'N/A'}</td>
-                    <td class="amount-cell">₱${expense.amount.toFixed(2)}</td>
+                    <td class="amount-cell">â‚±${expense.amount.toFixed(2)}</td>
                     <td><button class="btn btn-delete" onclick="deleteExpense(${expense.id})">Delete</button></td>
                 `;
                 tbody.appendChild(row);
@@ -1202,7 +1202,7 @@
             const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
             const count = expenses.length;
 
-            document.getElementById('totalAmount').textContent = '₱' + total.toFixed(2);
+            document.getElementById('totalAmount').textContent = 'â‚±' + total.toFixed(2);
             document.getElementById('transactionCount').textContent = count + ' transaction' + (count !== 1 ? 's' : '');
         }
 
@@ -1308,7 +1308,7 @@
                     <div class="legend-color" style="background-color: ${categoryColors[category]}"></div>
                     <div class="legend-details">
                         <div class="legend-category">${category}</div>
-                        <div class="legend-amount">₱${amount.toFixed(2)}</div>
+                        <div class="legend-amount">â‚±${amount.toFixed(2)}</div>
                         <div class="legend-percentage">${percentage.toFixed(1)}% of total</div>
                     </div>
                 `;
@@ -1340,7 +1340,7 @@
                 row.innerHTML = `
                     <div class="category-header">
                         <span class="category-name">${category}</span>
-                        <span class="category-balance">₱${categories[category].toFixed(2)}</span>
+                        <span class="category-balance">â‚±${categories[category].toFixed(2)}</span>
                     </div>
                 <div class="category-actions">
     <!-- Add Money button: full width row above -->
@@ -1495,8 +1495,8 @@
             renderAllCategories();
             
             const msg = document.getElementById('successMessage');
-           if (currentSavingsAction) {  // ← Only if it's a savings action
-    msg.textContent = `Added ₱${amount} successfully!`;
+           if (currentSavingsAction) {  // â† Only if it's a savings action
+    msg.textContent = `Added â‚±${amount} successfully!`;
     msg.style.display = 'block';
 
         function updateAllDisplays() {
@@ -1513,9 +1513,9 @@
             const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
             const remaining = totalSavings - totalSpent;
             
-            document.getElementById('totalSavings').textContent = '₱' + totalSavings.toFixed(2);
-            document.getElementById('totalSpent').textContent = '₱' + totalSpent.toFixed(2);
-            document.getElementById('remainingBalance').textContent = '₱' + remaining.toFixed(2);
+            document.getElementById('totalSavings').textContent = 'â‚±' + totalSavings.toFixed(2);
+            document.getElementById('totalSpent').textContent = 'â‚±' + totalSpent.toFixed(2);
+            document.getElementById('remainingBalance').textContent = 'â‚±' + remaining.toFixed(2);
             
             // Build detailed account view
             const container = document.getElementById('accountsDetailView');
@@ -1526,12 +1526,12 @@
             gcashCard.className = 'account-detail-card';
             gcashCard.innerHTML = `
                 <h3 style="color: #8B1538; margin-bottom: 15px; font-size: 22px;">GCash</h3>
-                <div class="account-balance-large">₱${gcashTotal.toFixed(2)}</div>
+                <div class="account-balance-large">â‚±${gcashTotal.toFixed(2)}</div>
                 <div class="cash-breakdown">
                     ${Object.keys(accounts.GCash).map(cat => `
                         <div class="cash-category-item">
                             <span style="font-size: 16px;">${cat}</span>
-                            <span style="font-weight: bold; color: #8B1538; font-size: 18px;">₱${accounts.GCash[cat].toFixed(2)}</span>
+                            <span style="font-weight: bold; color: #8B1538; font-size: 18px;">â‚±${accounts.GCash[cat].toFixed(2)}</span>
                         </div>
                     `).join('')}
                 </div>
@@ -1543,12 +1543,12 @@
             seabankCard.className = 'account-detail-card';
             seabankCard.innerHTML = `
                 <h3 style="color: #8B1538; margin-bottom: 15px; font-size: 22px;">SeaBank</h3>
-                <div class="account-balance-large">₱${seabankTotal.toFixed(2)}</div>
+                <div class="account-balance-large">â‚±${seabankTotal.toFixed(2)}</div>
                 <div class="cash-breakdown">
                     ${Object.keys(accounts.SeaBank).map(cat => `
                         <div class="cash-category-item">
                             <span style="font-size: 16px;">${cat}</span>
-                            <span style="font-weight: bold; color: #8B1538; font-size: 18px;">₱${accounts.SeaBank[cat].toFixed(2)}</span>
+                            <span style="font-weight: bold; color: #8B1538; font-size: 18px;">â‚±${accounts.SeaBank[cat].toFixed(2)}</span>
                         </div>
                     `).join('')}
                 </div>
@@ -1560,12 +1560,12 @@
             cashCard.className = 'account-detail-card';
             cashCard.innerHTML = `
                 <h3 style="color: #8B1538; margin-bottom: 15px; font-size: 22px;">Cash</h3>
-                <div class="account-balance-large">₱${cashTotal.toFixed(2)}</div>
+                <div class="account-balance-large">â‚±${cashTotal.toFixed(2)}</div>
                 <div class="cash-breakdown">
                     ${Object.keys(accounts.Cash).map(cat => `
                         <div class="cash-category-item">
                             <span style="font-size: 16px;">${cat}</span>
-                            <span style="font-weight: bold; color: #8B1538; font-size: 18px;">₱${accounts.Cash[cat].toFixed(2)}</span>
+                            <span style="font-weight: bold; color: #8B1538; font-size: 18px;">â‚±${accounts.Cash[cat].toFixed(2)}</span>
                         </div>
                     `).join('')}
                 </div>
@@ -1628,8 +1628,8 @@
                 Object.keys(paymentTotals).reduce((a, b) => paymentTotals[a] > paymentTotals[b] ? a : b) : '-';
             
             // Update display
-            document.getElementById('periodTotal').textContent = '₱' + periodTotal.toFixed(2);
-            document.getElementById('avgDaily').textContent = '₱' + avgDaily.toFixed(2);
+            document.getElementById('periodTotal').textContent = 'â‚±' + periodTotal.toFixed(2);
+            document.getElementById('avgDaily').textContent = 'â‚±' + avgDaily.toFixed(2);
             document.getElementById('topCategory').textContent = topCategory;
             document.getElementById('topPayment').textContent = topPayment;
             
@@ -1725,7 +1725,7 @@
                 ctx.fillStyle = '#333';
                 ctx.font = 'bold 12px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText('₱' + amount.toFixed(0), x + barWidth / 2, y - 5);
+                ctx.fillText('â‚±' + amount.toFixed(0), x + barWidth / 2, y - 5);
                 
                 // Draw label
                 ctx.fillStyle = '#666';
