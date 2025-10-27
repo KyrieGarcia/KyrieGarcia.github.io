@@ -1,5 +1,5 @@
 // =========================
-// PootExpenseTracker JS File - FIXED VERSION
+// PootExpenseTracker JS File - FINAL + PERSISTENCE FIX
 // =========================
 
 // Data Storage
@@ -9,62 +9,33 @@ let savingsCategories = {
     seabank: [],
     cash: []
 };
-let totalMoneyAdded = 0; // ✅ NEW: Track lifetime total (only increases, never decreases)
+let totalMoneyAdded = 0; // Track lifetime total (only increases, never decreases)
 
 // Initialize with default categories
 function initializeDefaultCategories() {
-    const saved = localStorage.getItem('savingsCategories');
-    if (!saved) {
-        savingsCategories = {
-            gcash: [{ name: 'GCash', balance: 0 }],
-            seabank: [{ name: 'SeaBank', balance: 0 }],
-            cash: [{ name: 'Cash', balance: 0 }]
-        };
-        saveData();
-    }
+    savingsCategories = {
+        gcash: [{ name: 'GCash', balance: 0 }],
+        seabank: [{ name: 'SeaBank', balance: 0 }],
+        cash: [{ name: 'Cash', balance: 0 }]
+    };
+    saveData();
 }
 
 function saveData() {
     localStorage.setItem('expenses', JSON.stringify(expenses));
-    localStorage.setItem('accounts', JSON.stringify(accounts));
+    localStorage.setItem('savingsCategories', JSON.stringify(savingsCategories));
     localStorage.setItem('totalMoneyAdded', totalMoneyAdded.toString());
 }
 
 function loadData() {
     const savedExpenses = localStorage.getItem('expenses');
-    const savedAccounts = localStorage.getItem('accounts');
-    const savedTotal = localStorage.getItem('totalMoneyAdded');
-    if (savedExpenses) expenses = JSON.parse(savedExpenses);
-    if (savedAccounts) accounts = JSON.parse(savedAccounts);
-    if (savedTotal) totalMoneyAdded = parseFloat(savedTotal) || 0;
-}
-
-// Load data from localStorage
-function loadData() {
-    const savedExpenses = localStorage.getItem('expenses');
     const savedCategories = localStorage.getItem('savingsCategories');
-    const savedTotalAdded = localStorage.getItem('totalMoneyAdded'); // ✅ NEW
+    const savedTotal = localStorage.getItem('totalMoneyAdded');
 
-    if (savedExpenses) {
-        expenses = JSON.parse(savedExpenses);
-    }
-
-    if (savedCategories) {
-        savingsCategories = JSON.parse(savedCategories);
-    } else {
-        initializeDefaultCategories();
-    }
-    
-    if (savedTotalAdded) {
-        totalMoneyAdded = parseFloat(savedTotalAdded) || 0; // ✅ NEW
-    }
-}
-
-// Save data to localStorage
-function saveData() {
-    localStorage.setItem('expenses', JSON.stringify(expenses));
-    localStorage.setItem('savingsCategories', JSON.stringify(savingsCategories));
-    localStorage.setItem('totalMoneyAdded', totalMoneyAdded.toString()); // ✅ NEW
+    if (savedExpenses) expenses = JSON.parse(savedExpenses);
+    if (savedCategories) savingsCategories = JSON.parse(savedCategories);
+    else initializeDefaultCategories();
+    if (savedTotal) totalMoneyAdded = parseFloat(savedTotal) || 0;
 }
 
 // Show success message
@@ -82,28 +53,19 @@ function showSuccess(message) {
 document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', function() {
         const tabName = this.dataset.tab;
-
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
         this.classList.add('active');
         document.getElementById(tabName + '-tab').classList.add('active');
-
-        if (tabName === 'savings') {
-            displayAllSavingsCategories();
-        } else if (tabName === 'accounts') {
-            displayAccountsOverview();
-        } else if (tabName === 'statistics') {
-            displayStatistics();
-        }
+        if (tabName === 'savings') displayAllSavingsCategories();
+        else if (tabName === 'accounts') displayAccountsOverview();
+        else if (tabName === 'statistics') displayStatistics && displayStatistics();
     });
 });
 
 // Set today's date as default
 const dateInput = document.getElementById('expense-date');
-if (dateInput) {
-    dateInput.valueAsDate = new Date();
-}
+if (dateInput) dateInput.valueAsDate = new Date();
 
 // ===================
 // EXPENSES TAB
@@ -112,37 +74,30 @@ const expenseForm = document.getElementById('expense-form');
 if (expenseForm) {
     expenseForm.addEventListener('submit', function(e) {
         e.preventDefault();
-
         const name = document.getElementById('expense-name').value;
         const amount = parseFloat(document.getElementById('expense-amount').value);
         const category = document.getElementById('expense-category').value;
         const paidFrom = document.getElementById('paid-from').value;
         const date = document.getElementById('expense-date').value;
-
         if (!name || isNaN(amount) || !category || !paidFrom || !date) {
             alert('Please complete all fields');
             return;
         }
-
         const [accountType, ...categoryNameParts] = paidFrom.split(' - ');
         const accountKey = accountType.toLowerCase();
         const categoryIndex = savingsCategories[accountKey]?.findIndex(
             cat => cat.name === paidFrom
         );
-
         if (categoryIndex === -1 || categoryIndex === undefined) {
             alert('Please select a valid account');
             return;
         }
-
         if (savingsCategories[accountKey][categoryIndex].balance < amount) {
             alert('Not enough balance in this category');
             return;
         }
-
-        // Deduct amount
+        // Deduct amount from this savings category (NOT from totalMoneyAdded)
         savingsCategories[accountKey][categoryIndex].balance -= amount;
-
         // Create expense
         const expense = {
             id: Date.now(),
@@ -152,18 +107,15 @@ if (expenseForm) {
             paidFrom,
             date
         };
-
         expenses.push(expense);
         saveData();
         displayExpenses();
         updateTotals();
         updatePaidFromDropdown();
-
         // Reset form
         this.reset();
-        dateInput.valueAsDate = new Date();
+        if (dateInput) dateInput.valueAsDate = new Date();
         document.getElementById('expense-name').focus();
-
         showSuccess('Expense added successfully!');
     });
 }
@@ -172,22 +124,17 @@ if (expenseForm) {
 function displayExpenses() {
     const expenseList = document.getElementById('expense-list');
     const emptyMessage = document.getElementById('empty-expense-message');
-    const filterCategory = document.getElementById('filter-category').value;
-
+    const filterCategory = document.getElementById('filter-category') ? document.getElementById('filter-category').value : "All";
     let filteredExpenses = expenses;
     if (filterCategory !== 'All') {
         filteredExpenses = expenses.filter(exp => exp.category === filterCategory);
     }
-
     expenseList.innerHTML = '';
-
     if (filteredExpenses.length === 0) {
-        emptyMessage.classList.add('show');
+        emptyMessage && emptyMessage.classList.add('show');
         return;
     }
-
-    emptyMessage.classList.remove('show');
-
+    emptyMessage && emptyMessage.classList.remove('show');
     filteredExpenses.forEach(expense => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -206,19 +153,16 @@ function displayExpenses() {
 function deleteExpense(id) {
     if (confirm('Are you sure you want to delete this expense?')) {
         const expense = expenses.find(exp => exp.id === id);
-
         if (!expense) return;
-
         const [accountType] = expense.paidFrom.split(' - ');
         const accountKey = accountType.toLowerCase();
         const categoryIndex = savingsCategories[accountKey]?.findIndex(
             cat => cat.name === expense.paidFrom
         );
-
-        if (categoryIndex !== -1 && categoryIndex !== undefined) {
-            savingsCategories[accountKey][categoryIndex].balance += expense.amount;
-        }
-
+        // Add money back to the selected category (OPTIONAL: comment this out if you don't want undone expenses to restore money)
+        // if (categoryIndex !== -1 && categoryIndex !== undefined) {
+        //     savingsCategories[accountKey][categoryIndex].balance += expense.amount;
+        // }
         expenses = expenses.filter(exp => exp.id !== id);
         saveData();
         displayExpenses();
@@ -236,7 +180,6 @@ if (filterSelect) {
 // Update totals
 function updateTotals() {
     const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-    
     document.getElementById('total-spent').textContent = totalSpent.toFixed(2);
     document.getElementById('remaining-balance').textContent = (totalMoneyAdded - totalSpent).toFixed(2);
 }
@@ -255,14 +198,11 @@ function displaySavingsCategories(accountType) {
     const container = document.getElementById(accountType + '-categories');
     if (!container) return;
     container.innerHTML = '';
-
     const categories = savingsCategories[accountType];
-
     if (categories.length === 0) {
         container.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No categories yet. Click + to add one.</p>';
         return;
     }
-
     categories.forEach((category, index) => {
         const categoryEl = document.createElement('div');
         categoryEl.className = 'category-item';
@@ -296,7 +236,6 @@ function showAddCategoryForm(accountType) {
         existingForm.remove();
         return;
     }
-
     const form = document.createElement('div');
     form.className = 'add-category-form';
     form.innerHTML = `
@@ -309,7 +248,6 @@ function showAddCategoryForm(accountType) {
             <button class="btn-danger" onclick="cancelAddCategory('${accountType}')">Cancel</button>
         </div>
     `;
-
     container.insertBefore(form, container.firstChild);
     document.getElementById('new-category-name-' + accountType).focus();
 }
@@ -321,7 +259,6 @@ function saveNewCategory(accountType) {
         alert('Please enter a category name');
         return;
     }
-
     const newCategory = { name: categoryName, balance: 0 };
     savingsCategories[accountType].push(newCategory);
     saveData();
@@ -336,7 +273,7 @@ function cancelAddCategory(accountType) {
     if (form) form.remove();
 }
 
-// ✅ FIXED: Add Money - Only this function should increase totalMoneyAdded
+// Add Money - Only this function should increase totalMoneyAdded
 function addMoney(accountType, index) {
     const amount = parseFloat(prompt('How much money do you want to add?'));
     if (isNaN(amount) || amount <= 0) {
@@ -344,14 +281,14 @@ function addMoney(accountType, index) {
         return;
     }
     savingsCategories[accountType][index].balance += amount;
-    totalMoneyAdded += amount; // ✅ CRITICAL: Increment lifetime total
+    totalMoneyAdded += amount;
     saveData();
     displayAllSavingsCategories();
     displayAccountsOverview();
     showSuccess('Money added successfully!');
 }
 
-// ✅ FIXED: Remove Money - Does NOT touch totalMoneyAdded
+// Remove Money - Does NOT touch totalMoneyAdded
 function removeMoney(accountType, index) {
     const amount = parseFloat(prompt('How much money do you want to remove?'));
     if (isNaN(amount) || amount <= 0) {
@@ -363,7 +300,6 @@ function removeMoney(accountType, index) {
         return;
     }
     savingsCategories[accountType][index].balance -= amount;
-    // ✅ CRITICAL: Do NOT touch totalMoneyAdded here!
     saveData();
     displayAllSavingsCategories();
     displayAccountsOverview();
@@ -400,23 +336,15 @@ function updatePaidFromDropdown() {
     });
 }
 
-// ===================
-// ACCOUNTS & STATS
-// ===================
-// ✅ FIXED: Use totalMoneyAdded for Total Savings (static, never decreases)
+// ACCOUNTS OVERVIEW
 function displayAccountsOverview() {
     const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-
-    // ✅ CRITICAL: Total Savings = lifetime total added (static)
     document.getElementById('total-savings').textContent = totalMoneyAdded.toFixed(2);
     document.getElementById('total-spent').textContent = totalSpent.toFixed(2);
-    // ✅ CRITICAL: Remaining = lifetime total - spent
     document.getElementById('remaining-balance').textContent = (totalMoneyAdded - totalSpent).toFixed(2);
 }
 
-// ===================
 // INIT
-// ===================
 loadData();
 displayExpenses();
 updateTotals();
